@@ -451,7 +451,11 @@
         let viewMode = 'top3'; 
         let currentUserName = '';
         let hasUserVotedServerSide = false;
+        
+        // Polling Control Flags
         let pollingTimer = null;
+        let isFetchingResults = false;
+        let currentTab = 'vote'; // 'vote' atau 'results'
 
         // Fetch Helper Dengan Timeout 10 saat
         async function fetchWithTimeout(url, options = {}, timeout = 10000) {
@@ -469,28 +473,46 @@
             }
         }
 
-        // Initialize Application
+        // Initialize Application (Instant Load - 0 API Call)
         window.addEventListener('DOMContentLoaded', () => {
             const savedUser = sessionStorage.getItem('poll_current_user');
             if (savedUser) {
                 currentUserName = savedUser;
                 setupUserUI();
-                checkVoterStatusOnServer(currentUserName);
+                document.getElementById('login-modal').classList.add('hidden');
             } else {
                 showLoginModal();
             }
 
-            fetchLiveResults();
-            startPolling();
+            // Document Visibility Listener (Pause polling bila tab background)
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    stopPolling();
+                } else if (document.visibilityState === 'visible' && currentTab === 'results') {
+                    fetchLiveResults();
+                    startPolling();
+                }
+            });
         });
 
-        // 1. POLLING ENGINE
+        // 1. POLLING ENGINE (Polling HANYA aktif bila Tab Results dibuka - 7 saat)
         function startPolling() {
-            if (pollingTimer) clearInterval(pollingTimer);
-            pollingTimer = setInterval(fetchLiveResults, 4000);
+            stopPolling();
+            pollingTimer = setInterval(fetchLiveResults, 7000);
+        }
+
+        function stopPolling() {
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+                pollingTimer = null;
+            }
         }
 
         async function fetchLiveResults() {
+            // Elak concurrent/overlapping requests
+            if (isFetchingResults) return;
+            isFetchingResults = true;
+
             try {
                 const response = await fetchWithTimeout(`${APPS_SCRIPT_WEB_APP_URL}?action=results`, {}, 10000);
                 if (!response.ok) throw new Error("Network response error");
@@ -510,6 +532,8 @@
             } catch (err) {
                 console.error("Error fetching live results:", err);
                 updateSyncStatus(false);
+            } finally {
+                isFetchingResults = false;
             }
         }
 
@@ -533,63 +557,23 @@
             }
         }
 
-        // 2. LOGIN & SERVER CHECK
+        // 2. LOGIN (Instant - 0 API Call)
         function showLoginModal() {
             document.getElementById('login-modal').classList.remove('hidden');
         }
 
-        async function handleUserLogin(e) {
+        function handleUserLogin(e) {
             e.preventDefault();
             const input = document.getElementById('voter-name-input');
-            const submitBtn = document.getElementById('btn-login-submit');
-            const errorMsg = document.getElementById('login-error-msg');
-            const errorText = document.getElementById('login-error-text');
-
             const name = input.value.trim();
             if (!name) return;
 
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Menyemak...`;
+            currentUserName = name;
+            sessionStorage.setItem('poll_current_user', currentUserName);
 
-            try {
-                const res = await fetchWithTimeout(`${APPS_SCRIPT_WEB_APP_URL}?action=checkVoter&name=${encodeURIComponent(name)}`, {}, 10000);
-                const data = await res.json();
-
-                if (data.hasVoted) {
-                    errorText.innerText = "Nama ini telah membuat pengundian sebelum ini.";
-                    errorMsg.classList.remove('hidden');
-                    return;
-                }
-
-                errorMsg.classList.add('hidden');
-                currentUserName = name;
-                hasUserVotedServerSide = false;
-                sessionStorage.setItem('poll_current_user', currentUserName);
-
-                document.getElementById('login-modal').classList.add('hidden');
-                setupUserUI();
-                showToast(`Selamat datang, ${currentUserName}!`);
-
-            } catch (err) {
-                console.error("Ralat semakan pengguna:", err);
-                showToast('Tidak dapat menyemak status undian. Sila cuba lagi.', true);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `Mula Mengundi <i class="fa-solid fa-arrow-right"></i>`;
-            }
-        }
-
-        async function checkVoterStatusOnServer(name) {
-            try {
-                const res = await fetchWithTimeout(`${APPS_SCRIPT_WEB_APP_URL}?action=checkVoter&name=${encodeURIComponent(name)}`, {}, 10000);
-                const data = await res.json();
-                if (data.hasVoted) {
-                    hasUserVotedServerSide = true;
-                    setupUserUI();
-                }
-            } catch (err) {
-                console.error("Failed server check:", err);
-            }
+            document.getElementById('login-modal').classList.add('hidden');
+            setupUserUI();
+            showToast(`Selamat datang, ${currentUserName}!`);
         }
 
         function setupUserUI() {
@@ -624,7 +608,7 @@
             showLoginModal();
         }
 
-        // 3. CHECKBOX LIMIT CONTROL (Generic limit: max Limit)
+        // 3. CHECKBOX LIMIT CONTROL
         function updateCheckboxCounter(nameAttr, counterId, maxLimit) {
             const checked = document.querySelectorAll(`input[name="${nameAttr}"]:checked`);
             const counter = document.getElementById(counterId);
@@ -650,7 +634,7 @@
             }
         }
 
-        // 4. SUBMIT VOTE TO SERVER
+        // 4. SUBMIT VOTE (Single POST Request - Server Duplicate Check)
         async function handleVoteSubmit(e) {
             e.preventDefault();
 
@@ -707,13 +691,10 @@
                     hasUserVotedServerSide = true;
                     showToast('Undian anda berjaya direkodkan!');
                     setupUserUI();
-                    
-                    await fetchLiveResults();
 
-                    setTimeout(() => {
-                        switchTab('results');
-                        triggerConfetti();
-                    }, 400);
+                    // Buka tab results dan terus aktifkan live polling
+                    switchTab('results');
+                    triggerConfetti();
 
                 } else if (result.duplicate) {
                     hasUserVotedServerSide = true;
@@ -841,17 +822,23 @@
             });
         }
 
-        // 6. UI UTILITIES & NAVIGATION
+        // 6. TAB SWITCHING & POLLING CONTROL
         function switchTab(tab) {
+            currentTab = tab;
             const voteSec = document.getElementById('section-vote');
             const resSec = document.getElementById('section-results');
 
             if (tab === 'vote') {
                 voteSec.classList.remove('hidden');
                 resSec.classList.add('hidden');
+                // Hentikan polling apabila pengguna kembali mengisi soalan
+                stopPolling();
             } else {
                 voteSec.classList.add('hidden');
                 resSec.classList.remove('hidden');
+                // Ambil data serta-merta dan mulakan polling 7 saat
+                fetchLiveResults();
+                startPolling();
             }
         }
 
