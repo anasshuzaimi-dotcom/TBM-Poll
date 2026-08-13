@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Poll & Live Top 3 Results</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN for live celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121316',
+                        darkCard: '#1e2025',
+                        accentIndigo: '#6366f1',
+                        accentPurple: '#a855f7',
+                        accentGreen: '#22c55e'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .progress-bar-animated {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .podium-1 { order: 2; }
+        .podium-2 { order: 1; }
+        .podium-3 { order: 3; }
+    </style>
+</head>
+<body class="bg-darkBg text-gray-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- FLOATING LOGIN MODAL -->
+    <div id="login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-darkCard border border-gray-700/80 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 relative">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-indigo-600/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto text-xl border border-indigo-500/30">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Log Masuk Pengundi</h3>
+                <p class="text-xs text-gray-400">Sila masukkan nama anda untuk pengesahan identiti (mengelakkan *double entry*).</p>
+            </div>
+
+            <form onsubmit="handleUserLogin(event)" class="space-y-4">
+                <div>
+                    <label for="voter-name-input" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">Nama Penuh / Gelaran</label>
+                    <input type="text" id="voter-name-input" required placeholder="Contoh: Ahmad Razak" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+                <div id="login-error-msg" class="text-xs text-red-400 hidden flex items-center gap-1.5 bg-red-950/40 p-2.5 rounded-lg border border-red-500/20">
+                    <i class="fa-solid fa-circle-exclamation"></i> <span>Nama ini telah membuat pengundian!</span>
+                </div>
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2 text-sm">
+                    Mula Mengundi <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Header Navigation Bar -->
+    <header class="border-b border-gray-800 bg-darkCard/90 backdrop-blur px-4 py-3 sticky top-0 z-50 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-lg flex items-center justify-center">
+                    <i class="fa-solid fa-chart-pie text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        Interactive Live Poll
+                        <span id="sheets-sync-status" class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1.5 font-medium" title="Sistem disegerakkan dengan Google Sheets">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Google Sheets Sync Active
+                        </span>
+                    </h1>
+                    <p class="text-xs text-gray-400">Pilih 3 Jawapan Setiap Soalan & Keputusan Top 3 Secara Live</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- User Profile Badge -->
+                <div id="user-badge" class="hidden items-center gap-2 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-xl text-xs">
+                    <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                    <span class="text-gray-400">Pengundi:</span>
+                    <strong id="display-user-name" class="text-indigo-300">---</strong>
+                    <button onclick="logoutUser()" title="Tukar Nama" class="ml-1 text-gray-400 hover:text-red-400 transition">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+
+                <!-- Tab Switcher -->
+                <div class="flex items-center bg-gray-800 p-1 rounded-xl border border-gray-700">
+                    <button id="btn-tab-vote" onclick="switchTab('vote')" class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white shadow">
+                        <i class="fa-solid fa-check-to-slot"></i> Borang Undian
+                    </button>
+                    <button id="btn-tab-results" onclick="switchTab('results')" class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all flex items-center gap-2 text-gray-400 hover:text-white">
+                        <i class="fa-solid fa-trophy"></i> Keputusan Top 3
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+
+        <!-- STATS & QUICK CONTROLS BAR -->
+        <div class="mb-6 bg-darkCard/80 border border-gray-700/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 backdrop-blur">
+            <div class="flex items-center gap-6">
+                <div>
+                    <span class="text-xs uppercase tracking-wider text-gray-400 font-medium">Jumlah Peserta</span>
+                    <p class="text-2xl font-black text-indigo-400" id="total-voters-count">0</p>
+                </div>
+                <div class="h-8 w-px bg-gray-700"></div>
+                <div>
+                    <span class="text-xs uppercase tracking-wider text-gray-400 font-medium">Syarat Undian</span>
+                    <p class="text-sm font-semibold text-indigo-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-list-ol text-xs"></i> 3 Pilihan / Soalan
+                    </p>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="triggerConfetti()" class="text-xs px-3 py-2 bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 font-medium rounded-lg border border-gray-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-gift text-pink-400"></i> Keraian (Celebration)
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 1: BORANG UNDIAN (VOTING FORM) ================= -->
+        <div id="section-vote" class="space-y-6">
+            <form id="pollForm" onsubmit="handleVoteSubmit(event)" class="space-y-8">
+                
+                <!-- Soalan 1: Company Branding -->
+                <div class="bg-darkCard rounded-2xl border border-gray-700/80 p-6 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-700/60">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center font-bold text-sm">Q1</span>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Soalan 1: Company Branding</h2>
+                                <p class="text-xs text-gray-400">Sila pilih <strong class="text-indigo-400">Tepat 3 Jenama Syarikat</strong> pilihan anda.</p>
+                            </div>
+                        </div>
+                        <span id="q1-counter" class="text-xs font-bold px-3 py-1 bg-indigo-900/60 border border-indigo-500/50 text-indigo-300 rounded-full">
+                            0 / 3 Dipilih
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="MrDiy" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">1. MR.DIY</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Zus Coffee" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">2. Zus Coffee</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Siti Khadijah" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">3. Siti Khadijah</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Mamee" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">4. Mamee</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Padini" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">5. Padini</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Adabi" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">6. Adabi</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Bonia" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">7. Bonia</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Eco-Shop" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">8. Eco-Shop</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="KK Super Mart" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">9. KK Super Mart</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Nasi Lemak Burung Hantu" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">10. Nasi Lemak Burung Hantu</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="MyBurgerLab" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">11. MyBurgerLab</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q1_company" value="Oriental Kopi" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">12. Oriental Kopi</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Soalan 2: Personal Branding -->
+                <div class="bg-darkCard rounded-2xl border border-gray-700/80 p-6 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-700/60">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center font-bold text-sm">Q2</span>
+                            <div>
+                                <h2 class="text-lg font-bold text-white">Soalan 2: Personal Branding</h2>
+                                <p class="text-xs text-gray-400">Sila pilih <strong class="text-purple-400">Tepat 3 Personaliti/Jenama Diri</strong> pilihan anda.</p>
+                            </div>
+                        </div>
+                        <span id="q2-counter" class="text-xs font-bold px-3 py-1 bg-purple-900/60 border border-purple-500/50 text-purple-300 rounded-full">
+                            0 / 3 Dipilih
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Khairul Aming" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">1. Khairul Aming</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Vivy Yusof" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">2. Vivy Yusof</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Dato Seri Vida" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">3. Dato Seri Vida</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Pak Mat Western" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">4. Pak Mat Western</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Aina Beauty" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">5. Aina Beauty</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Kauthar Rozmal" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">6. Kauthar Rozmal</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Dato Alif Syukri" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">7. Dato Alif Syukri</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Doh Barbershop" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">8. Doh Barbershop</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Neelofa" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">9. Neelofa</span>
+                        </label>
+                        <label class="relative flex items-center p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q2_personal" value="Chef Wan" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-gray-200 group-hover:text-white">10. Chef Wan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end">
+                    <button type="submit" id="btn-submit-vote" class="px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3)
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ================= SECTION 2: KEPUTUSAN LIVE (TOP 3 RESULTS) ================= -->
+        <div id="section-results" class="hidden space-y-8">
+            
+            <!-- Result Toggle Filter -->
+            <div class="flex justify-between items-center bg-gray-800/50 p-3 rounded-xl border border-gray-700/80">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400 text-lg"></i>
+                    <span class="text-sm font-semibold text-gray-200">Paparan Utama Keputusan</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <button onclick="toggleViewMode('top3')" id="btn-mode-top3" class="px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white shadow">
+                        Hanya Top 3
+                    </button>
+                    <button onclick="toggleViewMode('all')" id="btn-mode-all" class="px-3 py-1.5 rounded-lg font-bold bg-gray-700 text-gray-300 hover:text-white">
+                        Semua Senarai
+                    </button>
+                </div>
+            </div>
+
+            <!-- RESULT CARD 1: COMPANY BRANDING -->
+            <div class="bg-darkCard rounded-2xl border border-gray-700/80 p-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-6 pb-3 border-b border-gray-700/80">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Keputusan Kategori 1</span>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            🏢 Company Branding Top 3
+                        </h2>
+                    </div>
+                    <span id="q1-vote-badge" class="text-xs font-medium text-gray-400 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                        0 Undi
+                    </span>
+                </div>
+
+                <!-- Podium Layout (Top 3 Visual Display) -->
+                <div id="podium-q1" class="grid grid-cols-3 gap-3 mb-8 items-end max-w-xl mx-auto pt-4">
+                    <!-- Dynamic Podium Generated -->
+                </div>
+
+                <!-- Detailed Progress Bar Ranking -->
+                <div id="q1-results-list" class="space-y-4">
+                    <!-- Progress bars injected via JS -->
+                </div>
+            </div>
+
+            <!-- RESULT CARD 2: PERSONAL BRANDING -->
+            <div class="bg-darkCard rounded-2xl border border-gray-700/80 p-6 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-6 pb-3 border-b border-gray-700/80">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-purple-400">Keputusan Kategori 2</span>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            👑 Personal Branding Top 3
+                        </h2>
+                    </div>
+                    <span id="q2-vote-badge" class="text-xs font-medium text-gray-400 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                        0 Undi
+                    </span>
+                </div>
+
+                <!-- Podium Layout (Top 3 Visual Display) -->
+                <div id="podium-q2" class="grid grid-cols-3 gap-3 mb-8 items-end max-w-xl mx-auto pt-4">
+                    <!-- Dynamic Podium Generated -->
+                </div>
+
+                <!-- Detailed Progress Bar Ranking -->
+                <div id="q2-results-list" class="space-y-4">
+                    <!-- Progress bars injected via JS -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 bg-darkCard py-4 text-center text-xs text-gray-400">
+        Interactive Poll & Top 3 Live Dashboard &bull; Bahasa Melayu
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-lg"></i>
+        <span id="toast-msg" class="font-semibold text-sm">Berjaya!</span>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        
+        /* 
+           =============================================================================
+           GOOGLE APPS SCRIPT SETUP INSTRUCTIONS FOR GOOGLE SHEETS SYNC:
+           =============================================================================
+           1. Buka Google Sheet baru.
+           2. Pergi ke Extensions -> Apps Script.
+           3. Padam kod asal dan tampal kod Apps Script di bawah:
+
+              function doPost(e) {
+                try {
+                  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+                  if (sheet.getLastRow() === 0) {
+                    sheet.appendRow(["Masa / Tarikh", "Nama Pengundi", "Company Branding (Q1)", "Personal Branding (Q2)"]);
+                  }
+                  var data = JSON.parse(e.postData.contents);
+                  sheet.appendRow([
+                    data.dateFormatted || new Date().toLocaleString(),
+                    data.voterName,
+                    data.q1_company,
+                    data.q2_personal
+                  ]);
+                  return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
+                         .setMimeType(ContentService.MimeType.JSON);
+                } catch (err) {
+                  return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
+                         .setMimeType(ContentService.MimeType.JSON);
+                }
+              }
+
+           4. Tekan "Deploy" -> "New deployment".
+           5. Pilih ikon Roda Gigi -> "Web app".
+           6. Tetapkan "Execute as": "Me".
+           7. Tetapkan "Who has access": "Anyone".
+           8. Tekan "Deploy", benarkan kebenaran (Authorize access), dan salin "Web App URL".
+           9. Tampal URL berkenaan di pembolehubah APPS_SCRIPT_WEB_APP_URL di bawah ini:
+           =============================================================================
+        */
+
+        // Google Apps Script Web App URL Placeholder
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwmJlZ4FAPow9oQ4RPmw4f3KQT-OLZkHzUQBnaU7FinuEBkqQmZJD8IW6wVzMBv-iHR/exec';
+
+        // Initial Poll State Data
+        const initialQ1 = {
+            'MrDiy': 0,
+            'Zus Coffee': 0,
+            'Siti Khadijah': 0,
+            'Mamee': 0,
+            'Padini': 0,
+            'Adabi': 0,
+            'Bonia': 0,
+            'Eco-Shop': 0,
+            'KK Super Mart': 0,
+            'Nasi Lemak Burung Hantu': 0,
+            'MyBurgerLab': 0,
+            'Oriental Kopi': 0
+        };
+
+        const initialQ2 = {
+            'Khairul Aming': 0,
+            'Vivy Yusof': 0,
+            'Dato Seri Vida': 0,
+            'Pak Mat Western': 0,
+            'Aina Beauty': 0,
+            'Kauthar Rozmal': 0,
+            'Dato Alif Syukri': 0,
+            'Doh Barbershop': 0,
+            'Neelofa': 0,
+            'Chef Wan': 0
+        };
+
+        let pollDataQ1 = { ...initialQ1 };
+        let pollDataQ2 = { ...initialQ2 };
+        let totalParticipants = 0;
+        let viewMode = 'top3'; // 'top3' or 'all'
+        let currentUserName = '';
+        let votedUsersList = []; // List of names who voted to avoid double entry
+
+        // Load data from LocalStorage if exists
+        function loadPolls() {
+            const savedQ1 = localStorage.getItem('poll_q1_v4');
+            const savedQ2 = localStorage.getItem('poll_q2_v4');
+            const savedVoters = localStorage.getItem('poll_voters_v4');
+            const savedVotedUsers = localStorage.getItem('poll_user_list_v4');
+            const savedSessionUser = sessionStorage.getItem('poll_current_user');
+
+            if (savedQ1) pollDataQ1 = { ...initialQ1, ...JSON.parse(savedQ1) };
+            if (savedQ2) pollDataQ2 = { ...initialQ2, ...JSON.parse(savedQ2) };
+            if (savedVoters) totalParticipants = parseInt(savedVoters, 10) || 0;
+            if (savedVotedUsers) votedUsersList = JSON.parse(savedVotedUsers);
+
+            if (savedSessionUser) {
+                currentUserName = savedSessionUser;
+                setupUserUI();
+            } else {
+                showLoginModal();
+            }
+
+            updateDashboard();
+        }
+
+        function savePolls() {
+            localStorage.setItem('poll_q1_v4', JSON.stringify(pollDataQ1));
+            localStorage.setItem('poll_q2_v4', JSON.stringify(pollDataQ2));
+            localStorage.setItem('poll_voters_v4', totalParticipants.toString());
+            localStorage.setItem('poll_user_list_v4', JSON.stringify(votedUsersList));
+            updateDashboard();
+        }
+
+        // Login & User Validation Handlers
+        function showLoginModal() {
+            const modal = document.getElementById('login-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function handleUserLogin(e) {
+            e.preventDefault();
+            const input = document.getElementById('voter-name-input');
+            const name = input.value.trim();
+            const errorMsg = document.getElementById('login-error-msg');
+
+            if (!name) return;
+
+            // Check double entry
+            const normalizedName = name.toLowerCase();
+            const hasVoted = votedUsersList.some(u => u.toLowerCase() === normalizedName);
+
+            if (hasVoted) {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            errorMsg.classList.add('hidden');
+            currentUserName = name;
+            sessionStorage.setItem('poll_current_user', currentUserName);
+
+            document.getElementById('login-modal').classList.add('hidden');
+            setupUserUI();
+            showToast(`Selamat datang, ${currentUserName}!`);
+        }
+
+        function setupUserUI() {
+            const userBadge = document.getElementById('user-badge');
+            const userNameDisplay = document.getElementById('display-user-name');
+            const submitBtn = document.getElementById('btn-submit-vote');
+
+            if (currentUserName) {
+                userBadge.classList.remove('hidden');
+                userBadge.classList.add('flex');
+                userNameDisplay.innerText = currentUserName;
+
+                // Check if this current logged-in user already voted
+                const normalizedName = currentUserName.toLowerCase();
+                const hasVoted = votedUsersList.some(u => u.toLowerCase() === normalizedName);
+
+                if (hasVoted && submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.className = "px-8 py-3.5 bg-gray-800 text-gray-400 font-bold rounded-xl cursor-not-allowed opacity-60 flex items-center gap-2 text-base";
+                    submitBtn.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-400"></i> Anda telah selesai mengundi`;
+                } else if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.className = "px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center gap-2 text-base";
+                    submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3)`;
+                }
+            }
+        }
+
+        function logoutUser() {
+            sessionStorage.removeItem('poll_current_user');
+            currentUserName = '';
+            document.getElementById('user-badge').classList.add('hidden');
+            document.getElementById('voter-name-input').value = '';
+            document.getElementById('login-error-msg').classList.add('hidden');
+            showLoginModal();
+        }
+
+        // Checkbox Selection Counter Enforcement
+        function updateCheckboxCounter(nameAttr, counterId) {
+            const checked = document.querySelectorAll(`input[name="${nameAttr}"]:checked`);
+            const counter = document.getElementById(counterId);
+
+            if (counter) {
+                counter.innerText = `${checked.length} / 3 Dipilih`;
+                if (checked.length === 3) {
+                    counter.className = "text-xs font-bold px-3 py-1 bg-emerald-900/60 border border-emerald-500/50 text-emerald-300 rounded-full";
+                } else {
+                    counter.className = "text-xs font-bold px-3 py-1 bg-indigo-900/60 border border-indigo-500/50 text-indigo-300 rounded-full";
+                }
+            }
+
+            // Limit max checkable items to 3
+            const allCheckboxes = document.querySelectorAll(`input[name="${nameAttr}"]`);
+            if (checked.length >= 3) {
+                allCheckboxes.forEach(box => {
+                    if (!box.checked) box.disabled = true;
+                });
+            } else {
+                allCheckboxes.forEach(box => {
+                    box.disabled = false;
+                });
+            }
+        }
+
+        // Form Submit Handler
+        function handleVoteSubmit(e) {
+            e.preventDefault();
+
+            if (!currentUserName) {
+                showLoginModal();
+                return;
+            }
+
+            // Double entry guard check
+            const normalizedName = currentUserName.toLowerCase();
+            if (votedUsersList.some(u => u.toLowerCase() === normalizedName)) {
+                showToast('Anda telah mengundi sebelum ini! Double entry tidak dibenarkan.', true);
+                return;
+            }
+
+            const q1Selected = Array.from(document.querySelectorAll('input[name="q1_company"]:checked')).map(el => el.value);
+            const q2Selected = Array.from(document.querySelectorAll('input[name="q2_personal"]:checked')).map(el => el.value);
+
+            // Validation: Must select exactly 3 choices for each question
+            if (q1Selected.length !== 3) {
+                showToast('Sila pilih tepat 3 jawapan untuk Soalan 1 (Company Branding)!', true);
+                return;
+            }
+            if (q2Selected.length !== 3) {
+                showToast('Sila pilih tepat 3 jawapan untuk Soalan 2 (Personal Branding)!', true);
+                return;
+            }
+
+            // Increment votes locally
+            q1Selected.forEach(val => {
+                if (pollDataQ1.hasOwnProperty(val)) pollDataQ1[val]++;
+            });
+            q2Selected.forEach(val => {
+                if (pollDataQ2.hasOwnProperty(val)) pollDataQ2[val]++;
+            });
+
+            votedUsersList.push(currentUserName);
+            totalParticipants++;
+            savePolls();
+            setupUserUI();
+
+            // Background Sync to Google Sheets via Apps Script Web App (if configured)
+            syncToGoogleSheets(currentUserName, q1Selected, q2Selected);
+
+            showToast('Undian (3 + 3) anda berjaya direkodkan!');
+            
+            // Reset form checkboxes
+            e.target.reset();
+            updateCheckboxCounter('q1_company', 'q1-counter');
+            updateCheckboxCounter('q2_personal', 'q2-counter');
+
+            // Auto switch to results tab
+            setTimeout(() => {
+                switchTab('results');
+                triggerConfetti();
+            }, 600);
+        }
+
+        // Google Sheets Sync Execution
+        function syncToGoogleSheets(voterName, q1Choices, q2Choices) {
+            if (!APPS_SCRIPT_WEB_APP_URL || APPS_SCRIPT_WEB_APP_URL.includes('YOUR_APPS_SCRIPT')) {
+                console.warn('Google Apps Script URL belum ditetapkan. Undian disimpan secara tempatan sahaja.');
+                return;
+            }
+
+            const payload = {
+                timestamp: new Date().toISOString(),
+                dateFormatted: new Date().toLocaleString('ms-MY'),
+                voterName: voterName,
+                q1_company: q1Choices.join(', '),
+                q2_personal: q2Choices.join(', ')
+            };
+
+            // Post as JSON using no-cors mode to prevent cross-origin issues with Apps Script redirect
+            fetch(APPS_SCRIPT_WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                console.log('Undian berjaya dihantar ke Google Sheets!');
+            }).catch(err => {
+                console.error('Ralat semasa menghantar data ke Google Sheets:', err);
+            });
+        }
+
+        // Reset Polls logic
+        function resetPolls() {
+            if (confirm('Adakah anda pasti untuk reset semua keputusan undian dan senarai pengundi ke 0?')) {
+                pollDataQ1 = { ...initialQ1 };
+                pollDataQ2 = { ...initialQ2 };
+                totalParticipants = 0;
+                votedUsersList = [];
+                sessionStorage.removeItem('poll_current_user');
+                currentUserName = '';
+
+                savePolls();
+
+                // Reset counters
+                const form = document.getElementById('pollForm');
+                if (form) form.reset();
+                updateCheckboxCounter('q1_company', 'q1-counter');
+                updateCheckboxCounter('q2_personal', 'q2-counter');
+
+                showToast('Semua keputusan undian & senarai nama telah di-reset.');
+                showLoginModal();
+            }
+        }
+
+        // Helper function to pick N unique random items from array
+        function getRandomChoices(arr, count) {
+            const shuffled = [...arr].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // Simulate Random Votes from audience
+        function simulateAudienceVotes() {
+            const q1Keys = Object.keys(pollDataQ1);
+            const q2Keys = Object.keys(pollDataQ2);
+
+            const sampleCount = 5;
+            for (let i = 0; i < sampleCount; i++) {
+                const pickedQ1 = getRandomChoices(q1Keys, 3);
+                const pickedQ2 = getRandomChoices(q2Keys, 3);
+
+                pickedQ1.forEach(k => pollDataQ1[k]++);
+                pickedQ2.forEach(k => pollDataQ2[k]++);
+                totalParticipants++;
+            }
+
+            savePolls();
+            showToast(`+5 peserta sampel (3 pilihan / soalan) ditambah!`);
+        }
+
+        // Switch between Vote Tab and Results Tab
+        function switchTab(tab) {
+            const voteSec = document.getElementById('section-vote');
+            const resSec = document.getElementById('section-results');
+            const btnVote = document.getElementById('btn-tab-vote');
+            const btnRes = document.getElementById('btn-tab-results');
+
+            if (tab === 'vote') {
+                voteSec.classList.remove('hidden');
+                resSec.classList.add('hidden');
+                btnVote.className = "px-4 py-1.5 text-sm font-semibold rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white shadow";
+                btnRes.className = "px-4 py-1.5 text-sm font-semibold rounded-lg transition-all flex items-center gap-2 text-gray-400 hover:text-white";
+            } else {
+                voteSec.classList.add('hidden');
+                resSec.classList.remove('hidden');
+                btnRes.className = "px-4 py-1.5 text-sm font-semibold rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white shadow";
+                btnVote.className = "px-4 py-1.5 text-sm font-semibold rounded-lg transition-all flex items-center gap-2 text-gray-400 hover:text-white";
+            }
+        }
+
+        // View mode toggle (Top 3 vs All)
+        function toggleViewMode(mode) {
+            viewMode = mode;
+            const btnTop3 = document.getElementById('btn-mode-top3');
+            const btnAll = document.getElementById('btn-mode-all');
+
+            if (mode === 'top3') {
+                btnTop3.className = "px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white shadow";
+                btnAll.className = "px-3 py-1.5 rounded-lg font-bold bg-gray-700 text-gray-300 hover:text-white";
+            } else {
+                btnAll.className = "px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white shadow";
+                btnTop3.className = "px-3 py-1.5 rounded-lg font-bold bg-gray-700 text-gray-300 hover:text-white";
+            }
+            updateDashboard();
+        }
+
+        // Toast Notification
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = msg;
+            if (isError) {
+                toast.className = "fixed bottom-6 right-6 bg-red-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-0 opacity-100 transition-all duration-300 z-50";
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-lg";
+            } else {
+                toast.className = "fixed bottom-6 right-6 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-0 opacity-100 transition-all duration-300 z-50";
+                toastIcon.className = "fa-solid fa-circle-check text-lg";
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3200);
+        }
+
+        // Confetti effect
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 70,
+                    spread: 60,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // Main Dashboard Update Engine
+        function updateDashboard() {
+            const totalQ1Votes = Object.values(pollDataQ1).reduce((a, b) => a + b, 0);
+            const totalQ2Votes = Object.values(pollDataQ2).reduce((a, b) => a + b, 0);
+
+            document.getElementById('total-voters-count').innerText = totalParticipants;
+            document.getElementById('q1-vote-badge').innerText = `${totalQ1Votes} Total Undi`;
+            document.getElementById('q2-vote-badge').innerText = `${totalQ2Votes} Total Undi`;
+
+            // Sort results descending
+            const sortedQ1 = Object.entries(pollDataQ1).sort((a, b) => b[1] - a[1]);
+            const sortedQ2 = Object.entries(pollDataQ2).sort((a, b) => b[1] - a[1]);
+
+            // Render Podium (Top 3) & List
+            renderPodium('podium-q1', sortedQ1.slice(0, 3), totalParticipants);
+            renderPodium('podium-q2', sortedQ2.slice(0, 3), totalParticipants);
+
+            renderList('q1-results-list', sortedQ1, totalParticipants, 'bg-indigo-500');
+            renderList('q2-results-list', sortedQ2, totalParticipants, 'bg-purple-500');
+        }
+
+        // Render Podium Visual
+        function renderPodium(elementId, top3Array, votersCount) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            if (top3Array.length === 0 || votersCount === 0) {
+                container.innerHTML = `
+                    <div class="col-span-3 text-center text-xs text-gray-500 py-4">
+                        Belum ada undian untuk dipaparkan.
+                    </div>
+                `;
+                return;
+            }
+
+            // Top 3 positions mapping: 1st place in center, 2nd left, 3rd right
+            const podiumMap = [
+                { item: top3Array[0], rank: 1, label: '🥇 1st', height: 'h-28', bg: 'bg-amber-500/20 border-amber-500/50 text-amber-300', podiumOrder: 'podium-1' },
+                { item: top3Array[1], rank: 2, label: '🥈 2nd', height: 'h-20', bg: 'bg-slate-400/20 border-slate-400/50 text-slate-300', podiumOrder: 'podium-2' },
+                { item: top3Array[2], rank: 3, label: '🥉 3rd', height: 'h-16', bg: 'bg-amber-700/20 border-amber-700/50 text-amber-500', podiumOrder: 'podium-3' }
+            ];
+
+            podiumMap.forEach(p => {
+                if (!p.item) return;
+                const [name, count] = p.item;
+                const percent = votersCount > 0 ? Math.round((count / votersCount) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = `flex flex-col items-center ${p.podiumOrder}`;
+                card.innerHTML = `
+                    <div class="text-center mb-1">
+                        <span class="text-[11px] font-extrabold tracking-wide uppercase px-2 py-0.5 rounded-full border ${p.bg}">
+                            ${p.label}
+                        </span>
+                        <p class="font-bold text-xs text-white mt-1 truncate max-w-[100px]" title="${name}">${name}</p>
+                        <p class="text-[10px] text-gray-400 font-medium">${count} undi (${percent}% pengundi)</p>
+                    </div>
+                    <div class="w-full ${p.height} bg-gradient-to-t from-gray-900 to-gray-800 rounded-t-xl border-t border-x border-gray-700 flex items-center justify-center font-black text-xl text-gray-400 shadow-inner">
+                        ${p.rank}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Render List Progress Bars
+        function renderList(elementId, sortedArray, votersCount, barBgClass) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            const listToShow = viewMode === 'top3' ? sortedArray.slice(0, 3) : sortedArray;
+
+            listToShow.forEach(([name, count], index) => {
+                const percent = votersCount > 0 ? Math.round((count / votersCount) * 100) : 0;
+                
+                // Rank styling
+                let rankBadge = `<span class="w-6 h-6 rounded-lg bg-gray-800 border border-gray-700 text-gray-400 text-xs font-bold flex items-center justify-center">${index + 1}</span>`;
+                if (index === 0) rankBadge = `<span class="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-bold flex items-center justify-center">1</span>`;
+                if (index === 1) rankBadge = `<span class="w-6 h-6 rounded-lg bg-slate-400/20 border border-slate-400/40 text-slate-300 text-xs font-bold flex items-center justify-center">2</span>`;
+                if (index === 2) rankBadge = `<span class="w-6 h-6 rounded-lg bg-amber-700/20 border border-amber-700/40 text-amber-500 text-xs font-bold flex items-center justify-center">3</span>`;
+
+                const itemRow = document.createElement('div');
+                itemRow.className = "bg-gray-900/60 p-3.5 rounded-xl border border-gray-700/80 space-y-2";
+                itemRow.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            ${rankBadge}
+                            <span class="font-bold text-sm text-gray-100">${name}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-extrabold text-white">${count} undi</span>
+                            <span class="text-[11px] text-gray-400 ml-1">(${percent}% peserta)</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-3 bg-gray-950 rounded-full overflow-hidden p-0.5 border border-gray-800">
+                        <div class="h-full ${barBgClass} rounded-full progress-bar-animated" style="width: ${Math.min(percent, 100)}%"></div>
+                    </div>
+                `;
+                container.appendChild(itemRow);
+            });
+        }
+
+        // Copy Text Summary
+        function copyResultsSummary() {
+            const sortedQ1 = Object.entries(pollDataQ1).sort((a, b) => b[1] - a[1]).slice(0, 3);
+            const sortedQ2 = Object.entries(pollDataQ2).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+            let summaryText = `📊 *KEPUTUSAN LIVE POLL (TOP 3)* 📊\n👥 Jumlah Peserta: ${totalParticipants} Orang (3 Pilihan / Soalan)\n\n`;
+            summaryText += "🏢 *Company Branding Top 3:*\n";
+            sortedQ1.forEach(([name, count], i) => {
+                const pct = totalParticipants > 0 ? Math.round((count / totalParticipants) * 100) : 0;
+                summaryText += `${i + 1}. ${name} - ${count} undi (${pct}%)\n`;
+            });
+
+            summaryText += "\n👑 *Personal Branding Top 3:*\n";
+            sortedQ2.forEach(([name, count], i) => {
+                const pct = totalParticipants > 0 ? Math.round((count / totalParticipants) * 100) : 0;
+                summaryText += `${i + 1}. ${name} - ${count} undi (${pct}%)\n`;
+            });
+
+            summaryText += "\nTerima kasih kerana mengundi! 🎉";
+
+            navigator.clipboard.writeText(summaryText).then(() => {
+                showToast('Ringkasan disalin! Boleh paste terus.');
+            }).catch(() => {
+                showToast('Gagal menyalin ringkasan.');
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPolls();
+        });
+    </script>
+</body>
+</html>
