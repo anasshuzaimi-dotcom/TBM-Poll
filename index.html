@@ -6,7 +6,7 @@
     <title>Interactive Poll & Live Top 3 Results</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Canvas Confetti CDN for live celebration -->
+    <!-- Canvas Confetti CDN -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -48,7 +48,7 @@
                     <i class="fa-solid fa-user-check"></i>
                 </div>
                 <h3 class="text-xl font-bold text-white">Log Masuk Pengundi</h3>
-                <p class="text-xs text-gray-400">Sila masukkan nama anda untuk pengesahan identiti (mengelakkan double entry).</p>
+                <p class="text-xs text-gray-400">Sila masukkan nama anda untuk pengesahan identiti pengundian.</p>
             </div>
 
             <form onsubmit="handleUserLogin(event)" class="space-y-4">
@@ -57,9 +57,9 @@
                     <input type="text" id="voter-name-input" required placeholder="Contoh: Ahmad Razak" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div id="login-error-msg" class="text-xs text-red-400 hidden flex items-center gap-1.5 bg-red-950/40 p-2.5 rounded-lg border border-red-500/20">
-                    <i class="fa-solid fa-circle-exclamation"></i> <span>Nama ini telah membuat pengundian!</span>
+                    <i class="fa-solid fa-circle-exclamation"></i> <span id="login-error-text">Nama ini telah membuat pengundian!</span>
                 </div>
-                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2 text-sm">
+                <button type="submit" id="btn-login-submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2 text-sm">
                     Mula Mengundi <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
@@ -76,16 +76,17 @@
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
                         Interactive Live Poll
-                        <span id="sheets-sync-status" class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1.5 font-medium" title="Sistem disegerakkan dengan Google Sheets">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Google Sheets Sync Active
+                        <span id="sheets-sync-status" class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1.5 font-medium">
+                            <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span id="sync-text">Live Sync Connected</span>
                         </span>
                     </h1>
-                    <p class="text-xs text-gray-400">Pilih 3 Jawapan Setiap Soalan & Keputusan Top 3 Secara Live</p>
+                    <p class="text-xs text-gray-400">
+                        Pilih 3 Jawapan Setiap Soalan &bull; <span id="last-updated-text" class="text-gray-400">Last updated: --:--:--</span>
+                    </p>
                 </div>
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- User Profile Badge -->
                 <div id="user-badge" class="hidden items-center gap-2 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-xl text-xs">
                     <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
                     <span class="text-gray-400">Pengundi:</span>
@@ -106,21 +107,20 @@
             <div class="flex items-center gap-4 sm:gap-6">
                 <div>
                     <span class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-400 font-medium">Jumlah Peserta</span>
-                    <p class="text-xl sm:text-2xl font-black text-indigo-400" id="total-voters-count">0</p>
+                    <p class="text-xl sm:text-2xl font-black text-indigo-400"><span id="total-voters-count">0</span> Peserta</p>
                 </div>
                 <div class="h-8 w-px bg-gray-700"></div>
                 <div>
                     <span class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-400 font-medium">Syarat Undian</span>
                     <p class="text-xs sm:text-sm font-semibold text-indigo-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-list-ol text-xs"></i> 3 Pilihan / Soalan
+                        <i class="fa-solid fa-list-ol text-xs"></i> Tepat 3 Pilihan / Soalan
                     </p>
                 </div>
             </div>
 
-            <!-- Action Controls -->
             <div class="flex items-center gap-2 flex-wrap">
                 <button onclick="triggerConfetti()" class="text-xs px-3 py-2 bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 font-medium rounded-lg border border-gray-700 transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-gift text-pink-400"></i> Keraian (Celebration)
+                    <i class="fa-solid fa-gift text-pink-400"></i> Keraian
                 </button>
             </div>
         </div>
@@ -146,7 +146,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="MrDiy" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="MR.DIY" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">1. MR.DIY</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
@@ -255,10 +255,10 @@
                     </div>
                 </div>
 
-                <!-- Submit & Navigation Buttons at the bottom -->
+                <!-- Submit & Navigation Buttons -->
                 <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
                     <button type="button" onclick="switchTab('results')" class="w-full sm:w-auto px-6 py-3.5 bg-gray-800 hover:bg-gray-700 text-amber-400 font-bold rounded-xl border border-amber-500/30 transition flex items-center justify-center gap-2 text-sm">
-                        <i class="fa-solid fa-trophy"></i> Lihat Keputusan Top 3
+                        <i class="fa-solid fa-trophy"></i> Lihat Keputusan Live
                     </button>
                     <button type="submit" id="btn-submit-vote" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center justify-center gap-2 text-base">
                         <i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3)
@@ -270,15 +270,14 @@
         <!-- ================= SECTION 2: KEPUTUSAN LIVE (TOP 3 RESULTS PAGE) ================= -->
         <div id="section-results" class="hidden w-full space-y-6">
             
-            <!-- Result Toggle Filter Card -->
             <div class="w-full bg-darkCard rounded-2xl border border-gray-700/80 p-4 sm:p-6 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold text-sm">
                         <i class="fa-solid fa-trophy"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-white">Keputusan Live Dashboard</h3>
-                        <p class="text-xs text-gray-400">Kedudukan senarai jenama pilihan ramai</p>
+                        <h3 class="text-base font-bold text-white">Live Results Dashboard</h3>
+                        <p class="text-xs text-gray-400">Data terpusat secara langsung daripada Google Sheets</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 text-xs w-full sm:w-auto justify-end">
@@ -299,22 +298,20 @@
                     <div>
                         <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-indigo-400">Keputusan Kategori 1</span>
                         <h2 class="text-base sm:text-xl font-bold text-white flex items-center gap-2">
-                            🏢 Company Branding Top 3
+                            🏆 Company Branding Top 3
                         </h2>
                     </div>
                     <span id="q1-vote-badge" class="text-xs font-medium text-gray-400 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                        0 Undi
+                        0 Total Undi
                     </span>
                 </div>
 
-                <!-- Podium Layout (Top 3 Visual Display) -->
                 <div id="podium-q1" class="grid grid-cols-3 gap-1.5 sm:gap-3 mb-6 sm:mb-8 items-end max-w-xl mx-auto pt-2 sm:pt-4">
-                    <!-- Dynamic Podium Generated -->
+                    <!-- Dynamic Podium -->
                 </div>
 
-                <!-- Detailed Progress Bar Ranking -->
                 <div id="q1-results-list" class="space-y-3 sm:space-y-4">
-                    <!-- Progress bars injected via JS -->
+                    <!-- Dynamic Progress Bars -->
                 </div>
             </div>
 
@@ -326,26 +323,23 @@
                     <div>
                         <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-purple-400">Keputusan Kategori 2</span>
                         <h2 class="text-base sm:text-xl font-bold text-white flex items-center gap-2">
-                            👑 Personal Branding Top 3
+                            🌟 Personal Branding Top 3
                         </h2>
                     </div>
                     <span id="q2-vote-badge" class="text-xs font-medium text-gray-400 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                        0 Undi
+                        0 Total Undi
                     </span>
                 </div>
 
-                <!-- Podium Layout (Top 3 Visual Display) -->
                 <div id="podium-q2" class="grid grid-cols-3 gap-1.5 sm:gap-3 mb-6 sm:mb-8 items-end max-w-xl mx-auto pt-2 sm:pt-4">
-                    <!-- Dynamic Podium Generated -->
+                    <!-- Dynamic Podium -->
                 </div>
 
-                <!-- Detailed Progress Bar Ranking -->
                 <div id="q2-results-list" class="space-y-3 sm:space-y-4">
-                    <!-- Progress bars injected via JS -->
+                    <!-- Dynamic Progress Bars -->
                 </div>
             </div>
 
-            <!-- Back to Voting Button -->
             <div class="flex justify-start pt-2">
                 <button onclick="switchTab('vote')" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-xl border border-gray-700 transition flex items-center gap-2 text-sm">
                     <i class="fa-solid fa-arrow-left"></i> Kembali Ke Borang Undian
@@ -356,13 +350,12 @@
 
     </main>
 
-    <!-- Footer -->
     <footer class="border-t border-gray-800 bg-darkCard py-4 text-center text-xs text-gray-400">
-        Interactive Poll & Top 3 Live Dashboard &bull; Bahasa Melayu
+        Interactive Poll & Top 3 Live Dashboard &bull; Centralized Google Sheets Database
     </footer>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <div id="toast" class="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
         <i id="toast-icon" class="fa-solid fa-circle-check text-lg"></i>
         <span id="toast-msg" class="font-semibold text-sm">Berjaya!</span>
     </div>
@@ -370,106 +363,147 @@
     <!-- JAVASCRIPT LOGIC -->
     <script>
         
-        // Google Apps Script Web App URL
-        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwmJlZ4FAPow9oQ4RPmw4f3KQT-OLZkHzUQBnaU7FinuEBkqQmZJD8IW6wVzMBv-iHR/exec';
+        // APPS SCRIPT WEB APP API URL
+        const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby4uLG7WX0sb1cs7Q-jXM5yPsAcRuPfI-CJlqfBFIB-2on2QU0swjc1Kbi_xrA5B0Nv/exec';
 
-        // Initial Poll State Data
-        const initialQ1 = {
-            'MrDiy': 0,
-            'Zus Coffee': 0,
-            'Siti Khadijah': 0,
-            'Mamee': 0,
-            'Padini': 0,
-            'Adabi': 0,
-            'Bonia': 0,
-            'Eco-Shop': 0,
-            'KK Super Mart': 0,
-            'Nasi Lemak Burung Hantu': 0,
-            'MyBurgerLab': 0,
-            'Oriental Kopi': 0
-        };
-
-        const initialQ2 = {
-            'Khairul Aming': 0,
-            'Vivy Yusof': 0,
-            'Dato Seri Vida': 0,
-            'Pak Mat Western': 0,
-            'Aina Beauty': 0,
-            'Kauthar Rozmal': 0,
-            'Dato Alif Syukri': 0,
-            'Doh Barbershop': 0,
-            'Neelofa': 0,
-            'Chef Wan': 0
-        };
-
-        let pollDataQ1 = { ...initialQ1 };
-        let pollDataQ2 = { ...initialQ2 };
+        // State Management (Fully Centralized)
+        let pollDataQ1 = {};
+        let pollDataQ2 = {};
         let totalParticipants = 0;
-        let viewMode = 'top3'; // 'top3' or 'all'
+        let viewMode = 'top3'; 
         let currentUserName = '';
-        let votedUsersList = []; // List of names who voted to avoid double entry
+        let hasUserVotedServerSide = false;
+        let pollingTimer = null;
 
-        // Load data from LocalStorage if exists
-        function loadPolls() {
-            const savedQ1 = localStorage.getItem('poll_q1_v4');
-            const savedQ2 = localStorage.getItem('poll_q2_v4');
-            const savedVoters = localStorage.getItem('poll_voters_v4');
-            const savedVotedUsers = localStorage.getItem('poll_user_list_v4');
-            const savedSessionUser = sessionStorage.getItem('poll_current_user');
-
-            if (savedQ1) pollDataQ1 = { ...initialQ1, ...JSON.parse(savedQ1) };
-            if (savedQ2) pollDataQ2 = { ...initialQ2, ...JSON.parse(savedQ2) };
-            if (savedVoters) totalParticipants = parseInt(savedVoters, 10) || 0;
-            if (savedVotedUsers) votedUsersList = JSON.parse(savedVotedUsers);
-
-            if (savedSessionUser) {
-                currentUserName = savedSessionUser;
+        // Initialize application
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUser = sessionStorage.getItem('poll_current_user');
+            if (savedUser) {
+                currentUserName = savedUser;
                 setupUserUI();
+                checkVoterStatusOnServer(currentUserName);
             } else {
                 showLoginModal();
             }
 
-            updateDashboard();
+            // Load live results immediately and start 4-second polling
+            fetchLiveResults();
+            startPolling();
+        });
+
+        // 1. POLLING ENGINE (Fetch live results from Google Sheets every 4s)
+        function startPolling() {
+            if (pollingTimer) clearInterval(pollingTimer);
+            pollingTimer = setInterval(fetchLiveResults, 4000);
         }
 
-        function savePolls() {
-            localStorage.setItem('poll_q1_v4', JSON.stringify(pollDataQ1));
-            localStorage.setItem('poll_q2_v4', JSON.stringify(pollDataQ2));
-            localStorage.setItem('poll_voters_v4', totalParticipants.toString());
-            localStorage.setItem('poll_user_list_v4', JSON.stringify(votedUsersList));
-            updateDashboard();
+        async function fetchLiveResults() {
+            try {
+                const response = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?action=results`);
+                if (!response.ok) throw new Error("Network response error");
+
+                const data = await response.json();
+                if (data.success) {
+                    totalParticipants = data.totalParticipants || 0;
+                    pollDataQ1 = data.q1 || {};
+                    pollDataQ2 = data.q2 || {};
+                    
+                    updateSyncStatus(true, data.timestamp);
+                    updateDashboard();
+                } else {
+                    updateSyncStatus(false);
+                }
+            } catch (err) {
+                console.error("Error fetching live results:", err);
+                updateSyncStatus(false);
+            }
         }
 
-        // Login & User Validation Handlers
+        function updateSyncStatus(isConnected, timestamp = "") {
+            const statusBadge = document.getElementById('sheets-sync-status');
+            const syncDot = document.getElementById('sync-dot');
+            const syncText = document.getElementById('sync-text');
+            const lastUpdatedText = document.getElementById('last-updated-text');
+
+            if (isConnected) {
+                statusBadge.className = "bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1.5 font-medium";
+                syncDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                syncText.innerText = "Live Sync Connected";
+                if (timestamp) {
+                    lastUpdatedText.innerText = `Last updated: ${timestamp}`;
+                }
+            } else {
+                statusBadge.className = "bg-red-500/20 text-red-400 text-xs px-2.5 py-0.5 rounded-full border border-red-500/30 flex items-center gap-1.5 font-medium";
+                syncDot.className = "w-2 h-2 rounded-full bg-red-400";
+                syncText.innerText = "Live Sync Disconnected";
+            }
+        }
+
+        // 2. LOGIN & SERVER CHECK
         function showLoginModal() {
-            const modal = document.getElementById('login-modal');
-            modal.classList.remove('hidden');
+            document.getElementById('login-modal').classList.remove('hidden');
         }
 
-        function handleUserLogin(e) {
+        async function handleUserLogin(e) {
             e.preventDefault();
             const input = document.getElementById('voter-name-input');
-            const name = input.value.trim();
+            const submitBtn = document.getElementById('btn-login-submit');
             const errorMsg = document.getElementById('login-error-msg');
+            const errorText = document.getElementById('login-error-text');
 
+            const name = input.value.trim();
             if (!name) return;
 
-            // Check double entry
-            const normalizedName = name.toLowerCase();
-            const hasVoted = votedUsersList.some(u => u.toLowerCase() === normalizedName);
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Menyemak...`;
 
-            if (hasVoted) {
-                errorMsg.classList.remove('hidden');
-                return;
+            try {
+                // Check server if name has already voted
+                const res = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?action=checkVoter&name=${encodeURIComponent(name)}`);
+                const data = await res.json();
+
+                if (data.hasVoted) {
+                    errorText.innerText = "Nama ini telah membuat pengundian sebelum ini.";
+                    errorMsg.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `Mula Mengundi <i class="fa-solid fa-arrow-right"></i>`;
+                    return;
+                }
+
+                // Set user session
+                errorMsg.classList.add('hidden');
+                currentUserName = name;
+                hasUserVotedServerSide = false;
+                sessionStorage.setItem('poll_current_user', currentUserName);
+
+                document.getElementById('login-modal').classList.add('hidden');
+                setupUserUI();
+                showToast(`Selamat datang, ${currentUserName}!`);
+
+            } catch (err) {
+                console.error("Ralat semakan pengguna:", err);
+                // Allow user to proceed if offline check fails, server-side lock will validate upon submit
+                currentUserName = name;
+                sessionStorage.setItem('poll_current_user', currentUserName);
+                document.getElementById('login-modal').classList.add('hidden');
+                setupUserUI();
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `Mula Mengundi <i class="fa-solid fa-arrow-right"></i>`;
             }
+        }
 
-            errorMsg.classList.add('hidden');
-            currentUserName = name;
-            sessionStorage.setItem('poll_current_user', currentUserName);
-
-            document.getElementById('login-modal').classList.add('hidden');
-            setupUserUI();
-            showToast(`Selamat datang, ${currentUserName}!`);
+        async function checkVoterStatusOnServer(name) {
+            try {
+                const res = await fetch(`${APPS_SCRIPT_WEB_APP_URL}?action=checkVoter&name=${encodeURIComponent(name)}`);
+                const data = await res.json();
+                if (data.hasVoted) {
+                    hasUserVotedServerSide = true;
+                    setupUserUI();
+                }
+            } catch (err) {
+                console.error("Failed server check:", err);
+            }
         }
 
         function setupUserUI() {
@@ -482,11 +516,7 @@
                 userBadge.classList.add('flex');
                 userNameDisplay.innerText = currentUserName;
 
-                // Check if this current logged-in user already voted
-                const normalizedName = currentUserName.toLowerCase();
-                const hasVoted = votedUsersList.some(u => u.toLowerCase() === normalizedName);
-
-                if (hasVoted && submitBtn) {
+                if (hasUserVotedServerSide && submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.className = "w-full sm:w-auto px-8 py-3.5 bg-gray-800 text-gray-400 font-bold rounded-xl cursor-not-allowed opacity-60 flex items-center justify-center gap-2 text-base";
                     submitBtn.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-400"></i> Anda telah selesai mengundi`;
@@ -501,13 +531,14 @@
         function logoutUser() {
             sessionStorage.removeItem('poll_current_user');
             currentUserName = '';
+            hasUserVotedServerSide = false;
             document.getElementById('user-badge').classList.add('hidden');
             document.getElementById('voter-name-input').value = '';
             document.getElementById('login-error-msg').classList.add('hidden');
             showLoginModal();
         }
 
-        // Checkbox Selection Counter Enforcement
+        // 3. CHECKBOX LIMIT CONTROL
         function updateCheckboxCounter(nameAttr, counterId) {
             const checked = document.querySelectorAll(`input[name="${nameAttr}"]:checked`);
             const counter = document.getElementById(counterId);
@@ -521,7 +552,6 @@
                 }
             }
 
-            // Limit max checkable items to 3
             const allCheckboxes = document.querySelectorAll(`input[name="${nameAttr}"]`);
             if (checked.length >= 3) {
                 allCheckboxes.forEach(box => {
@@ -534,8 +564,8 @@
             }
         }
 
-        // Form Submit Handler
-        function handleVoteSubmit(e) {
+        // 4. SUBMIT VOTE TO SERVER
+        async function handleVoteSubmit(e) {
             e.preventDefault();
 
             if (!currentUserName) {
@@ -543,167 +573,94 @@
                 return;
             }
 
-            // Double entry guard check
-            const normalizedName = currentUserName.toLowerCase();
-            if (votedUsersList.some(u => u.toLowerCase() === normalizedName)) {
-                showToast('Anda telah mengundi sebelum ini! Double entry tidak dibenarkan.', true);
+            if (hasUserVotedServerSide) {
+                showToast('Anda telah mengundi sebelum ini.', true);
                 return;
             }
 
             const q1Selected = Array.from(document.querySelectorAll('input[name="q1_company"]:checked')).map(el => el.value);
             const q2Selected = Array.from(document.querySelectorAll('input[name="q2_personal"]:checked')).map(el => el.value);
 
-            // Validation: Must select exactly 3 choices for each question
             if (q1Selected.length !== 3) {
-                showToast('Sila pilih tepat 3 jawapan untuk Soalan 1 (Company Branding)!', true);
+                showToast('Sila pilih tepat 3 jawapan untuk Soalan 1!', true);
                 return;
             }
             if (q2Selected.length !== 3) {
-                showToast('Sila pilih tepat 3 jawapan untuk Soalan 2 (Personal Branding)!', true);
+                showToast('Sila pilih tepat 3 jawapan untuk Soalan 2!', true);
                 return;
             }
 
-            // Increment votes locally
-            q1Selected.forEach(val => {
-                if (pollDataQ1.hasOwnProperty(val)) pollDataQ1[val]++;
-            });
-            q2Selected.forEach(val => {
-                if (pollDataQ2.hasOwnProperty(val)) pollDataQ2[val]++;
-            });
-
-            votedUsersList.push(currentUserName);
-            totalParticipants++;
-            savePolls();
-            setupUserUI();
-
-            // Background Sync to Google Sheets via Apps Script Web App
-            syncToGoogleSheets(currentUserName, q1Selected, q2Selected);
-
-            showToast('Undian (3 + 3) anda berjaya direkodkan!');
-            
-            // Reset form checkboxes
-            e.target.reset();
-            updateCheckboxCounter('q1_company', 'q1-counter');
-            updateCheckboxCounter('q2_personal', 'q2-counter');
-
-            // Auto switch to results tab
-            setTimeout(() => {
-                switchTab('results');
-                triggerConfetti();
-            }, 500);
-        }
-
-        // Google Sheets Sync Execution
-        function syncToGoogleSheets(voterName, q1Choices, q2Choices) {
-            if (!APPS_SCRIPT_WEB_APP_URL || APPS_SCRIPT_WEB_APP_URL.includes('YOUR_APPS_SCRIPT')) {
-                console.warn('Google Apps Script URL belum ditetapkan. Undian disimpan secara tempatan sahaja.');
-                return;
-            }
+            const submitBtn = document.getElementById('btn-submit-vote');
+            submitBtn.disabled = true;
+            submitBtn.className = "w-full sm:w-auto px-8 py-3.5 bg-gray-700 text-gray-300 font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2 text-base";
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Menghantar...`;
 
             const payload = {
-                timestamp: new Date().toISOString(),
-                dateFormatted: new Date().toLocaleString('ms-MY'),
-                voterName: voterName,
-                q1_company: q1Choices.join(', '),
-                q2_personal: q2Choices.join(', ')
+                action: "vote",
+                voterName: currentUserName,
+                q1: q1Selected,
+                q2: q2Selected
             };
 
-            fetch(APPS_SCRIPT_WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            }).then(() => {
-                console.log('Undian berjaya dihantar ke Google Sheets!');
-            }).catch(err => {
-                console.error('Ralat semasa menghantar data ke Google Sheets:', err);
-            });
-        }
-
-        // Switch between Vote Tab and Results Tab
-        function switchTab(tab) {
-            const voteSec = document.getElementById('section-vote');
-            const resSec = document.getElementById('section-results');
-            const btnVote = document.getElementById('btn-tab-vote');
-            const btnRes = document.getElementById('btn-tab-results');
-
-            if (tab === 'vote') {
-                voteSec.classList.remove('hidden');
-                resSec.classList.add('hidden');
-                if (btnVote) btnVote.className = "px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white shadow";
-                if (btnRes) btnRes.className = "px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center gap-2 text-gray-400 hover:text-white";
-            } else {
-                voteSec.classList.add('hidden');
-                resSec.classList.remove('hidden');
-                if (btnRes) btnRes.className = "px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white shadow";
-                if (btnVote) btnVote.className = "px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center gap-2 text-gray-400 hover:text-white";
-            }
-        }
-
-        // View mode toggle (Top 3 vs All)
-        function toggleViewMode(mode) {
-            viewMode = mode;
-            const btnTop3 = document.getElementById('btn-mode-top3');
-            const btnAll = document.getElementById('btn-mode-all');
-
-            if (mode === 'top3') {
-                btnTop3.className = "px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white shadow";
-                btnAll.className = "px-3 py-1.5 rounded-lg font-bold bg-gray-700 text-gray-300 hover:text-white";
-            } else {
-                btnAll.className = "px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white shadow";
-                btnTop3.className = "px-3 py-1.5 rounded-lg font-bold bg-gray-700 text-gray-300 hover:text-white";
-            }
-            updateDashboard();
-        }
-
-        // Toast Notification
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            const toastIcon = document.getElementById('toast-icon');
-
-            toastMsg.innerText = msg;
-            if (isError) {
-                toast.className = "fixed bottom-6 right-6 bg-red-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-0 opacity-100 transition-all duration-300 z-50";
-                toastIcon.className = "fa-solid fa-triangle-exclamation text-lg";
-            } else {
-                toast.className = "fixed bottom-6 right-6 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-0 opacity-100 transition-all duration-300 z-50";
-                toastIcon.className = "fa-solid fa-circle-check text-lg";
-            }
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3200);
-        }
-
-        // Confetti effect
-        function triggerConfetti() {
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 70,
-                    spread: 60,
-                    origin: { y: 0.6 }
+            try {
+                const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Prevent CORS preflight issues
+                    body: JSON.stringify(payload)
                 });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hasUserVotedServerSide = true;
+                    showToast('Undian anda berjaya direkodkan!');
+                    setupUserUI();
+                    
+                    // Fetch latest live results right after submission
+                    await fetchLiveResults();
+
+                    setTimeout(() => {
+                        switchTab('results');
+                        triggerConfetti();
+                    }, 400);
+
+                } else if (result.duplicate) {
+                    hasUserVotedServerSide = true;
+                    showToast('Anda telah mengundi sebelum ini.', true);
+                    setupUserUI();
+                } else {
+                    showToast(result.message || 'Undian gagal dihantar. Sila cuba lagi.', true);
+                    resetSubmitButton();
+                }
+
+            } catch (err) {
+                console.error("Submission error:", err);
+                showToast('Ralat rangkaian/server. Sila cuba lagi.', true);
+                resetSubmitButton();
             }
         }
 
-        // Main Dashboard Update Engine
+        function resetSubmitButton() {
+            const submitBtn = document.getElementById('btn-submit-vote');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.className = "w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center justify-center gap-2 text-base";
+                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3)`;
+            }
+        }
+
+        // 5. RENDER DASHBOARD
         function updateDashboard() {
-            const totalQ1Votes = Object.values(pollDataQ1).reduce((a, b) => a + b, 0);
-            const totalQ2Votes = Object.values(pollDataQ2).reduce((a, b) => a + b, 0);
+            const totalQ1Votes = totalParticipants * 3;
+            const totalQ2Votes = totalParticipants * 3;
 
             document.getElementById('total-voters-count').innerText = totalParticipants;
             document.getElementById('q1-vote-badge').innerText = `${totalQ1Votes} Total Undi`;
             document.getElementById('q2-vote-badge').innerText = `${totalQ2Votes} Total Undi`;
 
-            // Sort results descending
             const sortedQ1 = Object.entries(pollDataQ1).sort((a, b) => b[1] - a[1]);
             const sortedQ2 = Object.entries(pollDataQ2).sort((a, b) => b[1] - a[1]);
 
-            // Render Podium (Top 3) & List
             renderPodium('podium-q1', sortedQ1.slice(0, 3), totalParticipants);
             renderPodium('podium-q2', sortedQ2.slice(0, 3), totalParticipants);
 
@@ -711,7 +668,6 @@
             renderList('q2-results-list', sortedQ2, totalParticipants, 'bg-purple-500');
         }
 
-        // Render Podium Visual
         function renderPodium(elementId, top3Array, votersCount) {
             const container = document.getElementById(elementId);
             container.innerHTML = '';
@@ -719,13 +675,12 @@
             if (top3Array.length === 0 || votersCount === 0) {
                 container.innerHTML = `
                     <div class="col-span-3 text-center text-xs text-gray-500 py-4">
-                        Belum ada undian untuk dipaparkan.
+                        Belum ada undian direkodkan.
                     </div>
                 `;
                 return;
             }
 
-            // Top 3 positions mapping: 1st place in center, 2nd left, 3rd right
             const podiumMap = [
                 { item: top3Array[0], rank: 1, label: '🥇 1st', height: 'h-24 sm:h-28', bg: 'bg-amber-500/20 border-amber-500/50 text-amber-300', podiumOrder: 'podium-1' },
                 { item: top3Array[1], rank: 2, label: '🥈 2nd', height: 'h-16 sm:h-20', bg: 'bg-slate-400/20 border-slate-400/50 text-slate-300', podiumOrder: 'podium-2' },
@@ -755,7 +710,6 @@
             });
         }
 
-        // Render List Progress Bars
         function renderList(elementId, sortedArray, votersCount, barBgClass) {
             const container = document.getElementById(elementId);
             container.innerHTML = '';
@@ -765,7 +719,6 @@
             listToShow.forEach(([name, count], index) => {
                 const percent = votersCount > 0 ? Math.round((count / votersCount) * 100) : 0;
                 
-                // Rank styling
                 let rankBadge = `<span class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-gray-800 border border-gray-700 text-gray-400 text-[10px] sm:text-xs font-bold flex items-center justify-center flex-shrink-0">${index + 1}</span>`;
                 if (index === 0) rankBadge = `<span class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400 text-[10px] sm:text-xs font-bold flex items-center justify-center flex-shrink-0">1</span>`;
                 if (index === 1) rankBadge = `<span class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-slate-400/20 border border-slate-400/40 text-slate-300 text-[10px] sm:text-xs font-bold flex items-center justify-center flex-shrink-0">2</span>`;
@@ -792,10 +745,64 @@
             });
         }
 
-        // Initialize on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            loadPolls();
-        });
+        // 6. UI UTILITIES & NAVIGATION
+        function switchTab(tab) {
+            const voteSec = document.getElementById('section-vote');
+            const resSec = document.getElementById('section-results');
+
+            if (tab === 'vote') {
+                voteSec.classList.remove('hidden');
+                resSec.classList.add('hidden');
+            } else {
+                voteSec.classList.add('hidden');
+                resSec.classList.remove('hidden');
+            }
+        }
+
+        function toggleViewMode(mode) {
+            viewMode = mode;
+            const btnTop3 = document.getElementById('btn-mode-top3');
+            const btnAll = document.getElementById('btn-mode-all');
+
+            if (mode === 'top3') {
+                btnTop3.className = "px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white shadow";
+                btnAll.className = "px-3 py-1.5 rounded-lg font-bold bg-gray-700 text-gray-300 hover:text-white";
+            } else {
+                btnAll.className = "px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white shadow";
+                btnTop3.className = "px-3 py-1.5 rounded-lg font-bold bg-gray-700 text-gray-300 hover:text-white";
+            }
+            updateDashboard();
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = msg;
+            if (isError) {
+                toast.className = "fixed bottom-6 right-6 bg-red-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-0 opacity-100 transition-all duration-300 z-50 pointer-events-none";
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-lg";
+            } else {
+                toast.className = "fixed bottom-6 right-6 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-0 opacity-100 transition-all duration-300 z-50 pointer-events-none";
+                toastIcon.className = "fa-solid fa-circle-check text-lg";
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3200);
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
     </script>
 </body>
 </html>
