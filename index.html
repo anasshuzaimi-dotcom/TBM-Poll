@@ -19,6 +19,7 @@
                         darkCard: '#1e2025',
                         accentIndigo: '#6366f1',
                         accentPurple: '#a855f7',
+                        accentEmerald: '#10b981',
                         accentGreen: '#22c55e'
                     }
                 }
@@ -81,7 +82,7 @@
                         </span>
                     </h1>
                     <p class="text-xs text-gray-400">
-                        Pilih 3 Jawapan Setiap Soalan &bull; <span id="last-updated-text" class="text-gray-400">Last updated: --:--:--</span>
+                        Pilih Jawapan Ikut Syarat &bull; <span id="last-updated-text" class="text-gray-400">Last updated: --:--:--</span>
                     </p>
                 </div>
             </div>
@@ -113,7 +114,7 @@
                 <div>
                     <span class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-400 font-medium">Syarat Undian</span>
                     <p class="text-xs sm:text-sm font-semibold text-indigo-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-list-ol text-xs"></i> Tepat 3 Pilihan / Soalan
+                        <i class="fa-solid fa-list-ol text-xs"></i> Q1(3) &bull; Q2(3) &bull; Q3(5) Pilihan
                     </p>
                 </div>
             </div>
@@ -146,51 +147,51 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="MR.DIY" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="MR.DIY" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">1. MR.DIY</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Zus Coffee" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Zus Coffee" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">2. Zus Coffee</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Siti Khadijah" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Siti Khadijah" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">3. Siti Khadijah</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Mamee" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Mamee" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">4. Mamee</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Padini" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Padini" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">5. Padini</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Adabi" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Adabi" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">6. Adabi</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Bonia" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Bonia" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">7. Bonia</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Eco-Shop" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Eco-Shop" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">8. Eco-Shop</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="KK Super Mart" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="KK Super Mart" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">9. KK Super Mart</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Nasi Lemak Burung Hantu" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Nasi Lemak Burung Hantu" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">10. Nasi Lemak Burung Hantu</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="MyBurgerLab" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="MyBurgerLab" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">11. MyBurgerLab</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-indigo-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q1_company" value="Oriental Kopi" onchange="updateCheckboxCounter('q1_company', 'q1-counter')" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
+                            <input type="checkbox" name="q1_company" value="Oriental Kopi" onchange="updateCheckboxCounter('q1_company', 'q1-counter', 3)" class="w-5 h-5 rounded text-indigo-600 bg-gray-900 border-gray-600 focus:ring-indigo-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">12. Oriental Kopi</span>
                         </label>
                     </div>
@@ -213,44 +214,95 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Khairul Aming" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Khairul Aming" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">1. Khairul Aming</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Vivy Yusof" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Vivy Yusof" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">2. Vivy Yusof</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Dato Seri Vida" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Dato Seri Vida" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">3. Dato Seri Vida</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Pak Mat Western" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Pak Mat Western" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">4. Pak Mat Western</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Aina Beauty" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Aina Beauty" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">5. Aina Beauty</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Kauthar Rozmal" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Kauthar Rozmal" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">6. Kauthar Rozmal</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Dato Alif Syukri" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Dato Alif Syukri" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">7. Dato Alif Syukri</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Doh Barbershop" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Doh Barbershop" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">8. Doh Barbershop</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Neelofa" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Neelofa" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">9. Neelofa</span>
                         </label>
                         <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-purple-500/50 transition duration-150 group">
-                            <input type="checkbox" name="q2_personal" value="Chef Wan" onchange="updateCheckboxCounter('q2_personal', 'q2-counter')" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
+                            <input type="checkbox" name="q2_personal" value="Chef Wan" onchange="updateCheckboxCounter('q2_personal', 'q2-counter', 3)" class="w-5 h-5 rounded text-purple-600 bg-gray-900 border-gray-600 focus:ring-purple-500 focus:ring-2">
                             <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">10. Chef Wan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Soalan 3: Niche -->
+                <div class="w-full bg-darkCard rounded-2xl border border-gray-700/80 p-4 sm:p-6 shadow-xl">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-gray-700/60">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-sm flex-shrink-0">Q3</span>
+                            <div>
+                                <h2 class="text-base sm:text-lg font-bold text-white">Soalan 3: Niche Pilihan</h2>
+                                <p class="text-xs text-gray-400">Sila pilih <strong class="text-emerald-400">Tepat 5 Niche</strong> pilihan anda.</p>
+                            </div>
+                        </div>
+                        <span id="q3-counter" class="text-xs font-bold px-3 py-1 bg-emerald-900/60 border border-emerald-500/50 text-emerald-300 rounded-full">
+                            0 / 5 Dipilih
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-emerald-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q3_niche" value="Fnb" onchange="updateCheckboxCounter('q3_niche', 'q3-counter', 5)" class="w-5 h-5 rounded text-emerald-600 bg-gray-900 border-gray-600 focus:ring-emerald-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">1. Fnb</span>
+                        </label>
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-emerald-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q3_niche" value="Property/ Real Estate" onchange="updateCheckboxCounter('q3_niche', 'q3-counter', 5)" class="w-5 h-5 rounded text-emerald-600 bg-gray-900 border-gray-600 focus:ring-emerald-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">2. Property/ Real Estate</span>
+                        </label>
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-emerald-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q3_niche" value="Fashion" onchange="updateCheckboxCounter('q3_niche', 'q3-counter', 5)" class="w-5 h-5 rounded text-emerald-600 bg-gray-900 border-gray-600 focus:ring-emerald-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">3. Fashion</span>
+                        </label>
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-emerald-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q3_niche" value="Book/Publisher" onchange="updateCheckboxCounter('q3_niche', 'q3-counter', 5)" class="w-5 h-5 rounded text-emerald-600 bg-gray-900 border-gray-600 focus:ring-emerald-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">4. Book/Publisher</span>
+                        </label>
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-emerald-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q3_niche" value="FMCG" onchange="updateCheckboxCounter('q3_niche', 'q3-counter', 5)" class="w-5 h-5 rounded text-emerald-600 bg-gray-900 border-gray-600 focus:ring-emerald-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">5. FMCG</span>
+                        </label>
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-emerald-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q3_niche" value="Education" onchange="updateCheckboxCounter('q3_niche', 'q3-counter', 5)" class="w-5 h-5 rounded text-emerald-600 bg-gray-900 border-gray-600 focus:ring-emerald-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">6. Education</span>
+                        </label>
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-emerald-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q3_niche" value="Home service" onchange="updateCheckboxCounter('q3_niche', 'q3-counter', 5)" class="w-5 h-5 rounded text-emerald-600 bg-gray-900 border-gray-600 focus:ring-emerald-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">7. Home service</span>
+                        </label>
+                        <label class="relative flex items-center p-3.5 sm:p-4 rounded-xl border border-gray-700/80 bg-gray-900/60 cursor-pointer hover:bg-gray-800/80 hover:border-emerald-500/50 transition duration-150 group">
+                            <input type="checkbox" name="q3_niche" value="Beauty" onchange="updateCheckboxCounter('q3_niche', 'q3-counter', 5)" class="w-5 h-5 rounded text-emerald-600 bg-gray-900 border-gray-600 focus:ring-emerald-500 focus:ring-2">
+                            <span class="ml-3 font-semibold text-xs sm:text-sm text-gray-200 group-hover:text-white truncate">8. Beauty</span>
                         </label>
                     </div>
                 </div>
@@ -260,8 +312,8 @@
                     <button type="button" onclick="switchTab('results')" class="w-full sm:w-auto px-6 py-3.5 bg-gray-800 hover:bg-gray-700 text-amber-400 font-bold rounded-xl border border-amber-500/30 transition flex items-center justify-center gap-2 text-sm">
                         <i class="fa-solid fa-trophy"></i> Lihat Keputusan Live
                     </button>
-                    <button type="submit" id="btn-submit-vote" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center justify-center gap-2 text-base">
-                        <i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3)
+                    <button type="submit" id="btn-submit-vote" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center justify-center gap-2 text-base">
+                        <i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3 + 5)
                     </button>
                 </div>
             </form>
@@ -340,6 +392,31 @@
                 </div>
             </div>
 
+            <!-- RESULT CARD 3: NICHE -->
+            <div class="w-full bg-darkCard rounded-2xl border border-gray-700/80 p-4 sm:p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-6 pb-3 border-b border-gray-700/80">
+                    <div>
+                        <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-400">Keputusan Kategori 3</span>
+                        <h2 class="text-base sm:text-xl font-bold text-white flex items-center gap-2">
+                            🚀 Niche Pilihan Top 3
+                        </h2>
+                    </div>
+                    <span id="q3-vote-badge" class="text-xs font-medium text-gray-400 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                        0 Total Undi
+                    </span>
+                </div>
+
+                <div id="podium-q3" class="grid grid-cols-3 gap-1.5 sm:gap-3 mb-6 sm:mb-8 items-end max-w-xl mx-auto pt-2 sm:pt-4">
+                    <!-- Dynamic Podium -->
+                </div>
+
+                <div id="q3-results-list" class="space-y-3 sm:space-y-4">
+                    <!-- Dynamic Progress Bars -->
+                </div>
+            </div>
+
             <div class="flex justify-start pt-2">
                 <button onclick="switchTab('vote')" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-xl border border-gray-700 transition flex items-center gap-2 text-sm">
                     <i class="fa-solid fa-arrow-left"></i> Kembali Ke Borang Undian
@@ -369,13 +446,14 @@
         // State Management
         let pollDataQ1 = {};
         let pollDataQ2 = {};
+        let pollDataQ3 = {};
         let totalParticipants = 0;
         let viewMode = 'top3'; 
         let currentUserName = '';
         let hasUserVotedServerSide = false;
         let pollingTimer = null;
 
-        // BUG 2 FIX: Helper Fetch Dengan Timeout 10 saat (Mencegah Mobile Stuck)
+        // Fetch Helper Dengan Timeout 10 saat
         async function fetchWithTimeout(url, options = {}, timeout = 10000) {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -406,7 +484,7 @@
             startPolling();
         });
 
-        // 1. POLLING ENGINE (BUG 7 FIX: Polling berterusan walaupun request gagal)
+        // 1. POLLING ENGINE
         function startPolling() {
             if (pollingTimer) clearInterval(pollingTimer);
             pollingTimer = setInterval(fetchLiveResults, 4000);
@@ -422,6 +500,7 @@
                     totalParticipants = data.totalParticipants || 0;
                     pollDataQ1 = data.q1 || {};
                     pollDataQ2 = data.q2 || {};
+                    pollDataQ3 = data.q3 || {};
                     
                     updateSyncStatus(true, data.timestamp);
                     updateDashboard();
@@ -454,7 +533,7 @@
             }
         }
 
-        // 2. LOGIN & SERVER CHECK (BUG 2 & BUG 6 FIX: Reset loading state jika timeout/error)
+        // 2. LOGIN & SERVER CHECK
         function showLoginModal() {
             document.getElementById('login-modal').classList.remove('hidden');
         }
@@ -529,8 +608,8 @@
                     submitBtn.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-400"></i> Anda telah selesai mengundi`;
                 } else if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.className = "w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center justify-center gap-2 text-base";
-                    submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3)`;
+                    submitBtn.className = "w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center justify-center gap-2 text-base";
+                    submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3 + 5)`;
                 }
             }
         }
@@ -545,14 +624,14 @@
             showLoginModal();
         }
 
-        // 3. CHECKBOX LIMIT CONTROL
-        function updateCheckboxCounter(nameAttr, counterId) {
+        // 3. CHECKBOX LIMIT CONTROL (Generic limit: max Limit)
+        function updateCheckboxCounter(nameAttr, counterId, maxLimit) {
             const checked = document.querySelectorAll(`input[name="${nameAttr}"]:checked`);
             const counter = document.getElementById(counterId);
 
             if (counter) {
-                counter.innerText = `${checked.length} / 3 Dipilih`;
-                if (checked.length === 3) {
+                counter.innerText = `${checked.length} / ${maxLimit} Dipilih`;
+                if (checked.length === maxLimit) {
                     counter.className = "text-xs font-bold px-3 py-1 bg-emerald-900/60 border border-emerald-500/50 text-emerald-300 rounded-full";
                 } else {
                     counter.className = "text-xs font-bold px-3 py-1 bg-indigo-900/60 border border-indigo-500/50 text-indigo-300 rounded-full";
@@ -560,7 +639,7 @@
             }
 
             const allCheckboxes = document.querySelectorAll(`input[name="${nameAttr}"]`);
-            if (checked.length >= 3) {
+            if (checked.length >= maxLimit) {
                 allCheckboxes.forEach(box => {
                     if (!box.checked) box.disabled = true;
                 });
@@ -571,7 +650,7 @@
             }
         }
 
-        // 4. SUBMIT VOTE TO SERVER (BUG 5 & BUG 6 FIX: POST menggunakan text/plain tanpa CORS preflight dan reset button pada error)
+        // 4. SUBMIT VOTE TO SERVER
         async function handleVoteSubmit(e) {
             e.preventDefault();
 
@@ -587,6 +666,7 @@
 
             const q1Selected = Array.from(document.querySelectorAll('input[name="q1_company"]:checked')).map(el => el.value);
             const q2Selected = Array.from(document.querySelectorAll('input[name="q2_personal"]:checked')).map(el => el.value);
+            const q3Selected = Array.from(document.querySelectorAll('input[name="q3_niche"]:checked')).map(el => el.value);
 
             if (q1Selected.length !== 3) {
                 showToast('Sila pilih tepat 3 jawapan untuk Soalan 1!', true);
@@ -594,6 +674,10 @@
             }
             if (q2Selected.length !== 3) {
                 showToast('Sila pilih tepat 3 jawapan untuk Soalan 2!', true);
+                return;
+            }
+            if (q3Selected.length !== 5) {
+                showToast('Sila pilih tepat 5 jawapan untuk Soalan 3 (Niche)!', true);
                 return;
             }
 
@@ -606,7 +690,8 @@
                 action: "vote",
                 voterName: currentUserName,
                 q1: q1Selected,
-                q2: q2Selected
+                q2: q2Selected,
+                q3: q3Selected
             };
 
             try {
@@ -650,8 +735,8 @@
             const submitBtn = document.getElementById('btn-submit-vote');
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.className = "w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center justify-center gap-2 text-base";
-                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3)`;
+                submitBtn.className = "w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition duration-150 flex items-center justify-center gap-2 text-base";
+                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Hantar Undian Saya (3 + 3 + 5)`;
             }
         }
 
@@ -659,19 +744,24 @@
         function updateDashboard() {
             const totalQ1Votes = totalParticipants * 3;
             const totalQ2Votes = totalParticipants * 3;
+            const totalQ3Votes = totalParticipants * 5;
 
             document.getElementById('total-voters-count').innerText = totalParticipants;
             document.getElementById('q1-vote-badge').innerText = `${totalQ1Votes} Total Undi`;
             document.getElementById('q2-vote-badge').innerText = `${totalQ2Votes} Total Undi`;
+            document.getElementById('q3-vote-badge').innerText = `${totalQ3Votes} Total Undi`;
 
             const sortedQ1 = Object.entries(pollDataQ1).sort((a, b) => b[1] - a[1]);
             const sortedQ2 = Object.entries(pollDataQ2).sort((a, b) => b[1] - a[1]);
+            const sortedQ3 = Object.entries(pollDataQ3).sort((a, b) => b[1] - a[1]);
 
             renderPodium('podium-q1', sortedQ1.slice(0, 3), totalParticipants);
             renderPodium('podium-q2', sortedQ2.slice(0, 3), totalParticipants);
+            renderPodium('podium-q3', sortedQ3.slice(0, 3), totalParticipants);
 
             renderList('q1-results-list', sortedQ1, totalParticipants, 'bg-indigo-500');
             renderList('q2-results-list', sortedQ2, totalParticipants, 'bg-purple-500');
+            renderList('q3-results-list', sortedQ3, totalParticipants, 'bg-emerald-500');
         }
 
         function renderPodium(elementId, top3Array, votersCount) {
